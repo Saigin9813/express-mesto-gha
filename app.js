@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const router = require('./routes/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -22,5 +23,9 @@ app.use(express.json());
 
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/card'));
+
+router.use('*', (req, res) => {
+  res.status(404).send({ message: 'Мы не обрабатываем данный роут' });
+});
 
 app.listen(PORT);
