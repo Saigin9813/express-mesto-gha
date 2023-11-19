@@ -1,9 +1,10 @@
 const Card = require('../models/card');
+const { errorsHandler } = require('../utils/utils');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => errorsHandler(err, res));
 };
 
 module.exports.createCard = (req, res) => {
@@ -12,19 +13,15 @@ module.exports.createCard = (req, res) => {
     .then((card) => {
       res.status(200).send(card);
     })
-    .catch((err) => res.status(500).send({ message: `${err}` }));
+    .catch((err) => errorsHandler(err, res));
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Карточка не найдена.' });
-        return;
-      }
       res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Внутренняя ошибка сервера.' }));
+    .catch((err) => errorsHandler(err, res));
 };
 
 module.exports.likeCard = (req, res) => {
@@ -34,7 +31,7 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.status(200).send(card))
-    .catch(() => res.status(500).send({ message: 'Внутренняя ошибка сервера.' }));
+    .catch((err) => errorsHandler(err, res));
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -44,5 +41,5 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.status(200).send(card))
-    .catch(() => res.status(500).send({ message: 'Внутренняя ошибка сервера.' }));
+    .catch((err) => errorsHandler(err, res));
 };

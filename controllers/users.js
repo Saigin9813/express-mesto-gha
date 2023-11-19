@@ -1,22 +1,20 @@
 const User = require('../models/user');
+const { errorsHandler } = require('../utils/utils');
 
 // Получит список пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => errorsHandler(err, res));
 };
+
 // Поулчиь пользователя по id
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (!user) {
-        res.status(404).send({ message: 'Произошла ошибка' });
-        return;
-      }
       res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => errorsHandler(err, res));
 };
 
 // Создание нового пользователя
@@ -26,7 +24,7 @@ module.exports.createUser = (req, res) => {
     .then((user) => {
       res.status(200).send(user);
     })
-    .catch((err) => res.status(500).send({ message: `${err}` }));
+    .catch((err) => errorsHandler(err, res));
 };
 // Обновить Профиль
 module.exports.updateUser = (req, res) => {
@@ -36,7 +34,7 @@ module.exports.updateUser = (req, res) => {
     { name, about },
   )
     .then((user) => res.status(200).send(user))
-    .catch(() => res.status(500).send({ message: 'Внутренняя ошибка сервера.' }));
+    .catch((err) => errorsHandler(err, res));
 };
 // Обновление аватара пользователя
 module.exports.updateAvatar = (req, res) => {
@@ -46,5 +44,5 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
   )
     .then((user) => res.status(200).send(user))
-    .catch(() => res.status(500).send({ message: 'Внутренняя ошибка сервера.' }));
+    .catch((err) => errorsHandler(err, res));
 };
