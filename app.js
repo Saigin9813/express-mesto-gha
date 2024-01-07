@@ -2,8 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const router = require('./routes/users');
-const login = require('./controllers/users');
-const createUser = require('./controllers/users');
+const cardRouter = require('./routes/card');
+const userRouter = require('./routes/users');
+const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
 const { signUp, signIn } = require('./utils/validation');
@@ -21,10 +22,8 @@ mongoose.connect(DB_URL, {
 
 app.use(express.json());
 
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/card'));
-
-app.use(auth);
+app.use('./cards', auth, cardRouter);
+app.use('./user', auth, userRouter);
 
 app.post('/signin', signIn, login);
 app.post('/signup', signUp, createUser);
