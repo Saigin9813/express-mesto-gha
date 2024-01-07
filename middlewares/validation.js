@@ -5,10 +5,10 @@ const urlPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-
 // Валидация авторизации
 const signIn = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().min(4).max(50).email()
+    email: Joi.string().email()
       .required(),
     password: Joi.string()
-      .required(),
+      .required().min(8).max(30),
   }),
 });
 
@@ -18,10 +18,10 @@ const signUp = celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(urlPattern),
-    email: Joi.string().min(4).max(50).email()
+    email: Joi.string().email()
       .required(),
     password: Joi.string()
-      .required(),
+      .required().min(8).max(30),
   }),
 });
 

@@ -1,35 +1,49 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const router = require('./routes/users');
+const { errors } = require('celebrate');
+const rateLimit = require('express-rate-limit');
+const errorsHandler = require('./middlewares/errorHandler');
 const cardRouter = require('./routes/card');
 const userRouter = require('./routes/users');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFoundError = require('./error/NotFoundError');
 
-const { signUp, signIn } = require('./utils/validation');
+const { signUp, signIn } = require('./middlewares/validation');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 const app = express();
 
 app.use(helmet());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+app.use(limiter);
 
 mongoose.connect(DB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
 app.use(express.json());
 
-app.use('./cards', auth, cardRouter);
-app.use('./user', auth, userRouter);
-
 app.post('/signin', signIn, login);
 app.post('/signup', signUp, createUser);
 
-router.use('*', (req, res) => {
-  res.status(404).send({ message: 'Мы не обрабатываем данный роут' });
+app.use(auth);
+
+app.use('/', userRouter);
+app.use('/', cardRouter);
+
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
+
+app.use(errors());
+app.use(errorsHandler);
 
 app.listen(PORT);
